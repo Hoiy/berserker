@@ -1,11 +1,10 @@
-from assets.bert import tokenization
-from train.config import TOKENIZER_VOCAB
+import tokenization
 import collections
 import tensorflow as tf
 
-def create_tokenizer():
+def create_tokenizer(vocab_path):
     return tokenization.FullTokenizer(
-        vocab_file=TOKENIZER_VOCAB,
+        vocab_file=vocab_path,
         do_lower_case=False
     )
 

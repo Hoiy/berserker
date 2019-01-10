@@ -10,7 +10,7 @@ import tensorflow as tf
 flags = tf.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("output_dir", "assets", "Assets directory.")
+flags.DEFINE_string("output_dir", "assets", "The output directory.")
 
 def maybe_download_unzip(url, dst_path):
     dir = os.path.join(dst_path, os.path.splitext(ntpath.basename(url))[0])
