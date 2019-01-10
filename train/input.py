@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-def _decode_record(record, name_to_features):
+def _deserialize(serialized, name_to_features):
   """Decodes a record to a TensorFlow example."""
-  example = tf.parse_single_example(record, name_to_features)
+  example = tf.parse_single_example(serialized, name_to_features)
 
   # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
   # So cast all int64 to int32.
@@ -14,16 +14,17 @@ def _decode_record(record, name_to_features):
 
   return example
 
+def feature_spec(seq_length):
+    return {
+        "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
+        "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "truths": tf.FixedLenFeature([seq_length], tf.float32),
+    }
 
-def input_fn_builder(input_file, seq_length, is_training,
-                                drop_remainder):
+
+def input_fn_builder(input_file, seq_length, shuffle, repeat, drop_remainder):
   """Creates an `input_fn` closure to be passed to TPUEstimator."""
-  name_to_features = {
-      "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
-      "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
-      "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
-      "truths": tf.FixedLenFeature([seq_length], tf.float32),
-  }
 
   def input_fn(params):
     """The actual input function."""
@@ -32,16 +33,29 @@ def input_fn_builder(input_file, seq_length, is_training,
     # For training, we want a lot of parallel reading and shuffling.
     # For eval, we want no shuffling and parallel reading doesn't matter.
     d = tf.data.TFRecordDataset(input_file)
-    if is_training:
+    if shuffle:
+      d = d.shuffle(buffer_size=1024)
+    if repeat:
       d = d.repeat()
-      d = d.shuffle(buffer_size=100)
 
     d = d.apply(
         tf.contrib.data.map_and_batch(
-            lambda record: _decode_record(record, name_to_features),
+            lambda serialized: _deserialize(serialized, feature_spec(seq_length)),
             batch_size=batch_size,
             drop_remainder=drop_remainder))
-
     return d
 
   return input_fn
+
+
+def serving_input_fn_builder(seq_length, batch_size):
+    def serving_input_receiver_fn():
+      """An input receiver that expects a serialized tf.Example."""
+      serialized_tf_example = tf.placeholder(dtype=tf.string,
+                                             shape=[batch_size],
+                                             name='input_example_tensor')
+      receiver_tensors = {'examples': serialized_tf_example}
+      features = tf.parse_example(serialized_tf_example, feature_spec(seq_length))
+      return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
+
+    return serving_input_receiver_fn

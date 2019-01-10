@@ -1,4 +1,4 @@
-from assets.bert import modeling
+import modeling, optimization
 import tensorflow as tf
 
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
@@ -19,11 +19,11 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
   hidden_size = final_hidden_shape[2]
 
   output_weights = tf.get_variable(
-      "chinese_tokenizer/output_weights", [1, hidden_size],
+      "berserker/output_weights", [1, hidden_size],
       initializer=tf.truncated_normal_initializer(stddev=0.02))
 
   output_bias = tf.get_variable(
-      "chinese_tokenizer/output_bias", [1], initializer=tf.zeros_initializer())
+      "berserker/output_bias", [1], initializer=tf.zeros_initializer())
 
   final_hidden_matrix = tf.reshape(final_hidden,
                                    [batch_size * seq_length, hidden_size])
@@ -36,9 +36,9 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 
   return predictions
 
-def model_fn_builder(bert_config, init_checkpoint, learning_rate,
-                     num_train_steps, num_warmup_steps, use_tpu,
-                     use_one_hot_embeddings):
+
+def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddings,
+                     learning_rate=None, num_train_steps=None, num_warmup_steps=None):
   """Returns `model_fn` closure for TPUEstimator."""
 
   def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -48,18 +48,14 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
     for name in sorted(features.keys()):
       tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
 
-    print(mode)
-
     input_ids = features["input_ids"]
     input_mask = features["input_mask"]
     segment_ids = features["segment_ids"]
     truths = features["truths"]
 
-    is_training = (mode == tf.estimator.ModeKeys.TRAIN)
-
     predictions = create_model(
         bert_config=bert_config,
-        is_training=is_training,
+        is_training=(mode == tf.estimator.ModeKeys.TRAIN),
         input_ids=input_ids,
         input_mask=input_mask,
         segment_ids=segment_ids,
@@ -67,6 +63,10 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
 
     tvars = tf.trainable_variables()
     initialized_variable_names = {}
+
+    #############
+    # scaffold_fn
+    #############
     scaffold_fn = None
     if init_checkpoint:
       (assignment_map, initialized_variable_names
@@ -90,15 +90,29 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
       tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
                       init_string)
 
-    input_mask_f = tf.cast(input_mask, tf.float32)
-    per_example_loss = tf.reduce_sum(tf.keras.backend.binary_crossentropy(truths, predictions) * input_mask_f, axis=-1) / tf.reduce_sum(input_mask_f, axis=-1)
-    total_loss = tf.reduce_mean(per_example_loss)
+    ############
+    # total_loss
+    ############
+    if mode == tf.estimator.ModeKeys.TRAIN or mode == tf.estimator.ModeKeys.EVAL:
+        input_mask_f = tf.cast(input_mask, tf.float32)
+        per_example_loss = tf.reduce_sum(tf.keras.backend.binary_crossentropy(truths, predictions) * input_mask_f, axis=-1) / tf.reduce_sum(input_mask_f, axis=-1)
+        total_loss = tf.reduce_mean(per_example_loss)
 
+
+    #############
+    # output_spec
+    #############
     output_spec = None
     if mode == tf.estimator.ModeKeys.TRAIN:
-
+      assert learning_rate is not None
+      assert num_train_steps is not None
+      assert num_warmup_steps is not None
       train_op = optimization.create_optimizer(
-          total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
+          total_loss,
+          learning_rate,
+          num_train_steps,
+          num_warmup_steps,
+          use_tpu)
 
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
@@ -107,15 +121,32 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
           scaffold_fn=scaffold_fn)
 
     elif mode == tf.estimator.ModeKeys.EVAL:
-
       def metric_fn(truths, predictions, masks):
-
-        auc = tf.metrics.auc(
-            labels=truths, predictions=predictions, weights=masks)
-
+        threshold = 0.5
+        pred_int = tf.cast(predictions >= threshold, tf.int32)
+        # acc = tf.metrics.accuracy(labels=truths, predictions=predictions, weights=masks)
         return {
-            "auc": auc,
-            "binary_crossentropy": total_loss
+            "auc": tf.metrics.auc(
+                labels=truths,
+                predictions=predictions,
+                weights=masks
+            ),
+            "f1_score @%.2f"%threshold: tf.contrib.metrics.f1_score(
+                labels=truths,
+                predictions=pred_int,
+                weights=masks
+            ),
+            "precision @%.2f"%threshold: tf.metrics.precision(
+                labels=truths,
+                predictions=pred_int,
+                weights=masks
+            ),
+            "recall @%.2f"%threshold: tf.metrics.recall(
+                labels=truths,
+                predictions=pred_int,
+                weights=masks
+            ),
+            # "binary_crossentropy": total_loss
         }
 
       eval_metrics = (metric_fn, [truths, predictions, input_mask])
@@ -125,14 +156,10 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
           eval_metrics=eval_metrics,
           scaffold_fn=scaffold_fn)
     else:
-      output_spec = tf.estimator.EstimatorSpec(
-        mode=mode,
-        predictions={"predictions": predictions},
-      )
-      # output_spec = tf.contrib.tpu.TPUEstimatorSpec(
-      #     mode=mode,
-      #     predictions={"predictions": predictions},
-      #     scaffold_fn=scaffold_fn)
+      output_spec = tf.contrib.tpu.TPUEstimatorSpec(
+          mode=mode,
+          predictions={"predictions": predictions},
+          scaffold_fn=scaffold_fn)
     return output_spec
 
   return model_fn
