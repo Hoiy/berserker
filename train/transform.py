@@ -113,7 +113,7 @@ def _create_float_feature(values):
   return feature
 
 
-def text_to_tfexample(text, max_seq_length, tokenizer):
+def text_to_bert_inputs(text, max_seq_length, tokenizer):
   tokens_a, tokens_a_truth = preprocess(text, tokenizer)
   assert len(tokens_a) == len(tokens_a_truth)
   bert_tokens_len = len(tokens_a)
@@ -176,9 +176,13 @@ def text_to_tfexample(text, max_seq_length, tokenizer):
   assert len(segment_ids) == max_seq_length
   assert len(truths) == max_seq_length
 
+  return input_ids, input_mask, segment_ids, truths
+
+
+def bert_inputs_to_tfexample(input_ids, input_mask, segment_ids, truths):
   features = collections.OrderedDict()
-  features['text'] = _create_byte_feature(text.encode('utf-8'))
-  features['bert_tokens_len'] = _create_int_feature([bert_tokens_len])
+  # features['text'] = _create_byte_feature(text.encode('utf-8'))
+  # features['bert_tokens_len'] = _create_int_feature([bert_tokens_len])
   features["input_ids"] = _create_int_feature(input_ids)
   features["input_mask"] = _create_int_feature(input_mask)
   features["segment_ids"] = _create_int_feature(segment_ids)
@@ -187,10 +191,14 @@ def text_to_tfexample(text, max_seq_length, tokenizer):
   return tf.train.Example(features=tf.train.Features(feature=features))
 
 
+def text_to_tfexample(text, max_seq_length, tokenizer):
+    return bert_inputs_to_tfexample(*text_to_bert_inputs(text, max_seq_length, tokenizer))
+
+
 def feature_spec(seq_length):
     return {
-        "text": tf.VarLenFeature(tf.string),
-        "bert_tokens_len": tf.FixedLenFeature([1], tf.int64),
+        # "text": tf.VarLenFeature(tf.string),
+        # "bert_tokens_len": tf.FixedLenFeature([1], tf.int64),
         "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
         "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
         "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
@@ -198,6 +206,15 @@ def feature_spec(seq_length):
     }
 
 
+# def model_prediction_to_result(predictions):
+#     text = predictions['text'].eval().values[0].decode('utf-8')
+#     bert_tokens_len = features['bert_tokens_len'].eval()[0]
+#     bert_tokens = tokenizer.convert_ids_to_tokens(features['input_ids'].eval()[1:bert_tokens_len+1])
+#     bert_truths = features['truths'].eval()[1:bert_tokens_len+1]
+#
+#     print("Final Result:", postprocess(text, bert_tokens, bert_truths, 0.5))
+
+
+
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+    pass

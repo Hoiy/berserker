@@ -159,7 +159,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddin
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
           predictions={
-            "input_ids": input_ids,
             "predictions": predictions
           },
           scaffold_fn=scaffold_fn)

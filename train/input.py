@@ -1,4 +1,5 @@
 import tensorflow as tf
+from transform import feature_spec, preprocess, text_to_bert_inputs
 
 def _deserialize(serialized, name_to_features):
   """Decodes a record to a TensorFlow example."""
@@ -31,7 +32,7 @@ def input_fn_builder(input_file, seq_length, shuffle, repeat, drop_remainder):
       d = d.repeat()
 
     d = d.apply(
-        tf.contrib.data.map_and_batch(
+        tf.data.experimental.map_and_batch(
             lambda serialized: _deserialize(serialized, feature_spec(seq_length)),
             batch_size=batch_size,
             drop_remainder=drop_remainder))
@@ -51,3 +52,46 @@ def serving_input_fn_builder(seq_length, batch_size):
       return tf.estimator.export.ServingInputReceiver(features, receiver_tensors)
 
     return serving_input_receiver_fn
+
+
+# TODO: padding insteads of drop_remainder
+def predict_input_fn_builder(bert_inputs, seq_length, tokenizer, drop_remainder=False):
+  all_input_ids = []
+  all_input_mask = []
+  all_segment_ids = []
+  all_truths = []
+
+  for input_ids, input_mask, segment_ids, truths in bert_inputs:
+      all_input_ids.append(input_ids)
+      all_input_mask.append(input_mask)
+      all_segment_ids.append(segment_ids)
+      all_truths.append(truths)
+
+  num_examples = len(bert_inputs)
+
+  def input_fn(params):
+      d = tf.data.Dataset.from_tensor_slices({
+          "input_ids":
+              tf.constant(
+                  all_input_ids, shape=[num_examples, seq_length],
+                  dtype=tf.int32),
+          "input_mask":
+              tf.constant(
+                  all_input_mask,
+                  shape=[num_examples, seq_length],
+                  dtype=tf.int32),
+          "segment_ids":
+              tf.constant(
+                  all_segment_ids,
+                  shape=[num_examples, seq_length],
+                  dtype=tf.int32),
+          "truths":
+              tf.constant(
+                  all_truths,
+                  shape=[num_examples, seq_length],
+                  dtype=tf.float32),
+      })
+      d = d.batch(batch_size=params['batch_size'], drop_remainder=drop_remainder)
+      return d
+
+  return input_fn
