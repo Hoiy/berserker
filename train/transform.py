@@ -82,7 +82,7 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
             continue
 
         # cannot match, previous token must be '[UNK]'
-        assert i > 1 and bert_tokens[i-1] == '[UNK]', (i, text, bert_tokens)
+        assert i > 1 and bert_tokens[i-1] == '[UNK]', (i, j, text[j-2:j+3], bert_tokens[i-2:i+3])
         # Assign truth value of '[UNK]' to only the last matching char
         truths[-1] = 0.
         truths.append(bert_truths[i-1])
