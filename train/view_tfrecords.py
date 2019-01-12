@@ -4,7 +4,7 @@ from transform import feature_spec
 flags = tf.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("tfrecords_file", "dataset/train_128.tfrecords", "The tfrecords file to be inspected.")
+flags.DEFINE_string("tfrecords_file", "dataset/test_128.tfrecords", "The tfrecords file to be inspected.")
 flags.DEFINE_integer("max_seq_length", 128, "Maximum sequence length.")
 flags.DEFINE_integer("display_rows", 3, "Number of rows to be displayed.")
 

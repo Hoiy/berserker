@@ -116,7 +116,7 @@ def _create_float_feature(values):
 def text_to_tfexample(text, max_seq_length, tokenizer):
   tokens_a, tokens_a_truth = preprocess(text, tokenizer)
   assert len(tokens_a) == len(tokens_a_truth)
-
+  bert_tokens_len = len(tokens_a)
   tokens_b = None
 
   # Account for [CLS] and [SEP] with "- 2"
@@ -178,16 +178,19 @@ def text_to_tfexample(text, max_seq_length, tokenizer):
 
   features = collections.OrderedDict()
   features['text'] = _create_byte_feature(text.encode('utf-8'))
+  features['bert_tokens_len'] = _create_int_feature([bert_tokens_len])
   features["input_ids"] = _create_int_feature(input_ids)
   features["input_mask"] = _create_int_feature(input_mask)
   features["segment_ids"] = _create_int_feature(segment_ids)
   features["truths"] = _create_float_feature(truths)
+
   return tf.train.Example(features=tf.train.Features(feature=features))
 
 
 def feature_spec(seq_length):
     return {
         "text": tf.VarLenFeature(tf.string),
+        "bert_tokens_len": tf.FixedLenFeature([1], tf.int64),
         "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
         "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
         "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
