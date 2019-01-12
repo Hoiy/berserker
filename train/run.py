@@ -101,7 +101,7 @@ def main(_):
         )
 
     if FLAGS.do_predict:
-        estimator.predict(
+        result = estimator.predict(
             input_fn=input_fn_builder(
                 input_file=FLAGS.predict_file,
                 seq_length=FLAGS.max_seq_length,
@@ -110,6 +110,23 @@ def main(_):
                 drop_remainder=FLAGS.use_tpu
             )
         )
+        import pandas as pd
+        from transform import postprocess
+
+        inp = pd.read_csv('./assets/icwb2-data/testing/pku_test.utf8', header=None)[0]
+        i = inp[0]
+        r = next(result)
+        print(postprocess(i, r['input_ids'], r['predictions'], 0.5, seperator='  '))
+        # for i, r in zip(inp, result):
+
+
+            # input_fn=input_fn_builder(
+            #     input_file=FLAGS.predict_file,
+            #     seq_length=FLAGS.max_seq_length,
+            #     shuffle=False,
+            #     repeat=False,
+            #     drop_remainder=FLAGS.use_tpu
+            # )
 
 
 if __name__ == "__main__":

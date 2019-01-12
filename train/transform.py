@@ -1,8 +1,8 @@
-import tokenization
 import collections
 import tensorflow as tf
 
 def create_tokenizer(vocab_path):
+    import tokenization
     return tokenization.FullTokenizer(
         vocab_file=vocab_path,
         do_lower_case=False
@@ -64,6 +64,7 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
     >>> postprocess('Ｂ７３７—３００  新世纪  ——  一  １１１１  ＫＫ·Ｄ  。  １２月  ３１日  。  １１００  。  ６—１２  。  Ｄ', ['[UNK]', '[UNK]', '３０', '##０', '新', '世', '纪', '[UNK]', '[UNK]', '一', '[UNK]', '·', '[UNK]', '。', '１２', '月', '３', '##１', '日', '。', '１１', '##００', '。', '６', '[UNK]', '１２', '。', '[UNK]'], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0], 0.5)
     'Ｂ７３７—３００  新世纪  ——  一  １１１１ＫＫ·Ｄ  。  １２月  ３１日  。  １１００  。  ６—１２  。  Ｄ'
     """
+    print(text, bert_tokens, bert_truths)
     assert len(bert_tokens) == len(bert_truths)
     text, truths = _to_text_and_truths(text)
 
@@ -98,6 +99,9 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
 
     return ''.join(tokens).rstrip(seperator)
 
+
+def _create_byte_feature(values):
+  return tf.train.Feature(bytes_list=tf.train.BytesList(value=[values]))
 
 def _create_int_feature(values):
   feature = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
@@ -173,11 +177,22 @@ def text_to_tfexample(text, max_seq_length, tokenizer):
   assert len(truths) == max_seq_length
 
   features = collections.OrderedDict()
+  features['text'] = _create_byte_feature(text.encode('utf-8'))
   features["input_ids"] = _create_int_feature(input_ids)
   features["input_mask"] = _create_int_feature(input_mask)
   features["segment_ids"] = _create_int_feature(segment_ids)
   features["truths"] = _create_float_feature(truths)
   return tf.train.Example(features=tf.train.Features(feature=features))
+
+
+def feature_spec(seq_length):
+    return {
+        "text": tf.VarLenFeature(tf.string),
+        "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
+        "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "truths": tf.FixedLenFeature([seq_length], tf.float32),
+    }
 
 
 if __name__ == "__main__":

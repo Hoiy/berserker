@@ -1,5 +1,5 @@
 import tensorflow as tf
-from input import feature_spec
+from transform import feature_spec
 
 flags = tf.flags
 FLAGS = flags.FLAGS
@@ -21,7 +21,10 @@ def view_tfrecord(file_name, feature_spec, display_rows=5):
             features = tf.parse_single_example(example, features=feature_spec)
             print('Example %d:'%i)
             for feature_name, tensor in features.items():
-                print(feature_name, features[feature_name].eval())
+                if feature_name == 'text':
+                    print(feature_name, features[feature_name].eval().values[0].decode('utf-8'))
+                else:
+                    print(feature_name, features[feature_name].eval())
 
 
 def main(_):
