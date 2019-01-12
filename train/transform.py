@@ -64,7 +64,6 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
     >>> postprocess('Ｂ７３７—３００  新世纪  ——  一  １１１１  ＫＫ·Ｄ  。  １２月  ３１日  。  １１００  。  ６—１２  。  Ｄ', ['[UNK]', '[UNK]', '３０', '##０', '新', '世', '纪', '[UNK]', '[UNK]', '一', '[UNK]', '·', '[UNK]', '。', '１２', '月', '３', '##１', '日', '。', '１１', '##００', '。', '６', '[UNK]', '１２', '。', '[UNK]'], [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0], 0.5)
     'Ｂ７３７—３００  新世纪  ——  一  １１１１ＫＫ·Ｄ  。  １２月  ３１日  。  １１００  。  ６—１２  。  Ｄ'
     """
-    print(text, bert_tokens, bert_truths)
     assert len(bert_tokens) == len(bert_truths)
     text, truths = _to_text_and_truths(text)
 

@@ -15,7 +15,7 @@ flags.DEFINE_string("gs_bert_model_ch_dir", 'gs://berserker/repo/assets/chinese_
 flags.DEFINE_string("train_file", "dataset/train_128.tfrecords", "The training file output by dataset.py.")
 
 flags.DEFINE_integer("max_seq_length", 512, "Maximum sequence length.")
-flags.DEFINE_integer("batch_size", 64, "The training and validation batch size.")
+flags.DEFINE_integer("batch_size", 64, "The training, validation and prediction batch size.")
 
 flags.DEFINE_bool("do_train", False, "Train the model.")
 flags.DEFINE_float("learning_rate", 2e-5, "The learning rate.")
@@ -142,7 +142,8 @@ def main(_):
             prediction = result['predictions'][1:1+bert_inputs_len]
             bert_tokens = tokenizer.convert_ids_to_tokens(input_ids)
 
-            print(postprocess(text, bert_tokens, prediction, threshold=0.5))
+            tf.logging.info(" Input: %s"%text)
+            tf.logging.info("Output: %s"%postprocess(text, bert_tokens, prediction, threshold=0.5))
 
 
 if __name__ == "__main__":
