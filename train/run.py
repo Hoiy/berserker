@@ -14,21 +14,24 @@ flags.DEFINE_string("checkpoint_dir", 'ckpt', "The directory for storing model c
 flags.DEFINE_string("gs_bert_model_ch_dir", 'gs://berserker/repo/assets/chinese_L-12_H-768_A-12', "A google storage path to unzipped BERT chinese_L-12_H-768_A-12 model.")
 flags.DEFINE_string("train_file", "dataset/train_128.tfrecords", "The training file output by dataset.py.")
 
-flags.DEFINE_integer("max_seq_length", 128, "Maximum sequence length.")
+flags.DEFINE_integer("max_seq_length", 512, "Maximum sequence length.")
+flags.DEFINE_integer("batch_size", 64, "The training and validation batch size.")
 
 flags.DEFINE_bool("do_train", False, "Train the model.")
 flags.DEFINE_float("learning_rate", 2e-5, "The learning rate.")
-flags.DEFINE_integer("train_steps", 200, "Number of training steps.")
+flags.DEFINE_integer("train_steps", 15243//64, "Number of training steps.")
 flags.DEFINE_float("warmup_proportion", 0.1, "")
-flags.DEFINE_integer("save_checkpoints_steps", 800, "Number of steps to save a checkpoint.")
-flags.DEFINE_integer("batch_size", 64, "The training and validation batch size.")
+flags.DEFINE_integer("save_checkpoints_steps", 15243//64, "Number of steps to save a checkpoint.")
+
 
 flags.DEFINE_bool("do_eval", False, "Evaluate the model.")
 flags.DEFINE_string("eval_file", "dataset/val_128.tfrecords", "The validation file output by dataset.py.")
-flags.DEFINE_integer("eval_steps", 50, "Number of validation steps.")
+flags.DEFINE_integer("eval_steps", 3811//64, "Number of validation steps.")
+
 
 flags.DEFINE_bool("do_predict", False, "Make prediction.")
 flags.DEFINE_string("predict_file", "dataset/test_128.tfrecords", "The test file output by dataset.py.")
+
 
 flags.DEFINE_bool("use_tpu", False, "Use TPU for training.")
 flags.DEFINE_integer("num_tpu_cores", 8, "The number of TPU cores.")
