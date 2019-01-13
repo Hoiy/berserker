@@ -170,9 +170,9 @@ def main(_):
                     text = text[SEQ_LENGTH:]
 
                 tokenized_text = postprocess(original_text, bert_tokens, prediction, threshold=0.5)
-                f.write(tokenized_text)
-                tf.logging.info(" Input: %s"%original_text)
-                tf.logging.info("Output: %s"%tokenized_text)
+                print(tokenized_text, file=f)
+                # tf.logging.info(" Input: %s"%original_text)
+                # tf.logging.info("Output: %s"%tokenized_text)
 
 
 if __name__ == "__main__":
