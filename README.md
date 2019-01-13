@@ -25,5 +25,5 @@ A quick test shows that Berserker achieved F1 measure of 0.960 on the [SIGHAN 20
 
 more to come...
 
-## Bonus
+## Bonus Video
 [<img src="https://img.youtube.com/vi/H_xmyvABZnE/maxres1.jpg" alt="Yachae!! BERSERKER!!"/>](https://www.youtube.com/watch?v=H_xmyvABZnE)
