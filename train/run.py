@@ -152,27 +152,31 @@ def main(_):
             )
         )
 
-        bert_inputs = iter(bert_inputs)
-        bert_inputs_lens = iter(bert_inputs_lens)
+        results = [result for result in results]
 
-        with open(FLAGS.predict_output, 'w') as f:
-            for text in texts:
-                original_text = text
-                prediction = np.array([])
-                bert_tokens = []
+        for threshold in np.linspace(0.1, 0.9, 9):
+            results_itr = iter(results)
+            bert_inputs_itr = iter(bert_inputs)
+            bert_inputs_lens_itr = iter(bert_inputs_lens)
 
-                while len(text) > 0:
-                    (input_ids, _, _, _) = next(bert_inputs)
-                    bert_inputs_len = next(bert_inputs_lens)
-                    result = next(results)
-                    prediction = np.concatenate((prediction, result['predictions'][1:1+bert_inputs_len]))
-                    bert_tokens += tokenizer.convert_ids_to_tokens(input_ids[1:1+bert_inputs_len])
-                    text = text[SEQ_LENGTH:]
+            with open('%.1f_'%threshold + FLAGS.predict_output, 'w') as f:
+                for text in texts:
+                    original_text = text
+                    prediction = np.array([])
+                    bert_tokens = []
 
-                tokenized_text = postprocess(original_text, bert_tokens, prediction, threshold=0.5)
-                print(tokenized_text, file=f)
-                # tf.logging.info(" Input: %s"%original_text)
-                # tf.logging.info("Output: %s"%tokenized_text)
+                    while len(text) > 0:
+                        (input_ids, _, _, _) = next(bert_inputs_itr)
+                        bert_inputs_len = next(bert_inputs_lens_itr)
+                        result = next(results_itr)
+                        prediction = np.concatenate((prediction, result['predictions'][1:1+bert_inputs_len]))
+                        bert_tokens += tokenizer.convert_ids_to_tokens(input_ids[1:1+bert_inputs_len])
+                        text = text[SEQ_LENGTH:]
+
+                    tokenized_text = postprocess(original_text, bert_tokens, prediction, threshold=threshold)
+                    print(tokenized_text, file=f)
+                    # tf.logging.info(" Input: %s"%original_text)
+                    # tf.logging.info("Output: %s"%tokenized_text)
 
 
 if __name__ == "__main__":

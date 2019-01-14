@@ -28,7 +28,6 @@ def main(_):
         os.path.join(FLAGS.assets_dir, 'icwb2-data', 'training', 'pku_training.utf8'),
         header=None
     )[0]
-    train, val = train_test_split(train, shuffle=True, test_size=0.2, random_state=FLAGS.random_seed)
     test = pd.read_csv(
         os.path.join(FLAGS.assets_dir, 'icwb2-data', 'testing', 'pku_test.utf8'),
         header=None
@@ -36,7 +35,6 @@ def main(_):
 
     config = {
         'train': train,
-        'val': val,
         'test': test
     }
 

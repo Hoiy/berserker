@@ -1,26 +1,38 @@
 # Berserker
 Berserker (BERt chineSE toKenizER) is a Chinese tokenizer built on top of Google's [BERT](https://github.com/google-research/bert) model.
 
+## Installation
+```python
+pip install berserker
+```
+
+## Usage
+```python
+import berserker
+
+berserker.tokenize('...') # ... (By defaul use PKU dataset trained tokenizer)
+```
+
 ## Training
 Berserker is fine-tuned over TPU with [pretrained Chinese BERT model](https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip). It is connected with a single dense layer which is applied to all tokens to produce a sequence of [0, 1] output.
 
 ## Result
-A quick test shows that Berserker achieved F1 measure of 0.960 on the [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) PKU [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip).
+A quick test shows that Berserker achieved F1 measure of 0.965 on the [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) PKU [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip). This is trained by using the full training data and trained for 5000 steps with batch size 64.
 
 ```
 === SUMMARY:
-=== TOTAL INSERTIONS:	781
-=== TOTAL DELETIONS:	2159
-=== TOTAL SUBSTITUTIONS:	2723
-=== TOTAL NCHANGE:	5663
+=== TOTAL INSERTIONS:	727
+=== TOTAL DELETIONS:	1800
+=== TOTAL SUBSTITUTIONS:	2413
+=== TOTAL NCHANGE:	4940
 === TOTAL TRUE WORD COUNT:	104372
-=== TOTAL TEST WORD COUNT:	102994
-=== TOTAL TRUE WORDS RECALL:	0.953
-=== TOTAL TEST WORDS PRECISION:	0.966
-=== F MEASURE:	0.960
+=== TOTAL TEST WORD COUNT:	103299
+=== TOTAL TRUE WORDS RECALL:	0.960
+=== TOTAL TEST WORDS PRECISION:	0.970
+=== F MEASURE:	0.965
 === OOV Rate:	0.058
-=== OOV Recall Rate:	0.855
-=== IV Recall Rate:	0.959
+=== OOV Recall Rate:	0.851
+=== IV Recall Rate:	0.966
 ```
 
 more to come...
