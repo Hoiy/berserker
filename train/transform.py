@@ -88,7 +88,7 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
         truths.append(bert_truths[i-1])
         j = j + 1
 
-    assert len(truths) == len(text), (len(truths), len(text))
+    assert len(truths) == len(text), (len(truths), len(text), text, bert_truths, bert_tokens)
 
     tokens = []
     for is_token_end, char in zip(truths, text):

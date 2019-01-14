@@ -112,7 +112,7 @@ def main(_):
         )
 
         import pandas as pd
-        texts = pd.read_csv(FLAGS.predict_file, header=None)[0]
+        texts = pd.read_csv(FLAGS.predict_file, header=None, sep='^')[0]
 
         # texts = [
         #     '共同创造美好的新世纪——二○○一年新年贺词',

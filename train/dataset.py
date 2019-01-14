@@ -24,19 +24,18 @@ def main(_):
         os.path.join(FLAGS.assets_dir, 'chinese_L-12_H-768_A-12', 'vocab.txt')
     )
 
-    train = pd.read_csv(
-        os.path.join(FLAGS.assets_dir, 'icwb2-data', 'training', 'pku_training.utf8'),
-        header=None
-    )[0]
-    test = pd.read_csv(
-        os.path.join(FLAGS.assets_dir, 'icwb2-data', 'testing', 'pku_test.utf8'),
-        header=None
-    )[0]
-
-    config = {
-        'train': train,
-        'test': test
-    }
+    config = {}
+    for dataset in ['pku', 'msr', 'cityu', 'as']:
+        print(os.path.join(FLAGS.assets_dir, 'icwb2-data', 'training', '%s_training.utf8'%dataset))
+        config['train_%s'%dataset] = pd.read_csv(
+            os.path.join(FLAGS.assets_dir, 'icwb2-data', 'training', '%s_training.utf8'%dataset),
+            header=None, sep='^'
+        )[0]
+        print(os.path.join(FLAGS.assets_dir, 'icwb2-data', 'testing', '%s_test.utf8'%dataset))
+        config['test_%s'%dataset] = pd.read_csv(
+            os.path.join(FLAGS.assets_dir, 'icwb2-data', 'testing', '%s_test.utf8'%dataset),
+            header=None, sep='^'
+        )[0]
 
     for type, ser in config.items():
         outfile = os.path.join(FLAGS.output_dir, '%s_%s.tfrecords'%(type, FLAGS.max_seq_length))
@@ -47,5 +46,4 @@ def main(_):
 
 
 if __name__ == "__main__":
-  flags.mark_flag_as_required("output_dir")
   tf.app.run()
