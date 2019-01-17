@@ -96,7 +96,7 @@ def postprocess(text, bert_tokens, bert_truths, threshold, seperator='  '):
         if is_token_end >= threshold:
             tokens.append(seperator)
 
-    return ''.join(tokens).rstrip(seperator)
+    return list(filter(None, ''.join(tokens).rstrip(seperator).split('  ')))
 
 
 def _create_byte_feature(values):

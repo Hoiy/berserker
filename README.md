@@ -10,8 +10,8 @@ pip install berserker
 ```python
 import berserker
 
-berserker.load_model('pku')
-berserker.tokenize('姑姑想過過過兒過過的生活。') # ... (By defaul use PKU dataset trained tokenizer)
+berserker.load_model() # Only needed to be called once
+berserker.tokenize('姑姑想過過過兒過過的生活。') # ['姑姑', '想', '過', '過', '過兒', '過過', '的', '生活', '。']
 ```
 
 ## Training
