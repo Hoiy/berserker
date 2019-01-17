@@ -7,6 +7,7 @@ import numpy as np
 
 
 _assets_path = Path(__file__).parent / 'assets'
+_models_path = Path(__file__).parent / 'models'
 
 
 MAX_SEQ_LENGTH = 512
@@ -16,7 +17,7 @@ SEQ_LENGTH = MAX_SEQ_LENGTH - 2
 def load_model(model_name=None, verbose=True, force_download=False):
     maybe_download_unzip(
         'https://github.com/Hoiy/berserker/releases/download/v0.1-alpha/1547563491.zip',
-        _assets_path,
+        _models_path,
         verbose,
         force_download
     )
@@ -39,7 +40,7 @@ def tokenize(text):
         temp = temp[SEQ_LENGTH:]
 
     berserker = tf.contrib.predictor.from_saved_model(
-        str(_assets_path / '1547563491')
+        str(_models_path / '1547563491')
     )
     output = berserker({
         'input_ids': [bi[0] for bi in bert_inputs],
