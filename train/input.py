@@ -98,8 +98,24 @@ def predict_input_fn_builder(bert_inputs, seq_length, tokenizer, drop_remainder=
 
 def serving_input_fn_builder(seq_length):
    return tf.estimator.export.build_raw_serving_input_receiver_fn({
-    'input_ids': tf.placeholder(shape=[None, seq_length], dtype=tf.int32),
-    'input_mask': tf.placeholder(shape=[None, seq_length], dtype=tf.int32),
-    'segment_ids': tf.placeholder(shape=[None, seq_length], dtype=tf.int32),
-    'truths': tf.placeholder(shape=[None, seq_length], dtype=tf.float32)
+    'input_ids': tf.placeholder(
+        shape=[None, seq_length],
+        dtype=tf.int32,
+        name='input_ids_ph'
+    ),
+    'input_mask': tf.placeholder(
+        shape=[None, seq_length],
+        dtype=tf.int32,
+        name='input_mask_ph'
+    ),
+    'segment_ids': tf.placeholder(
+        shape=[None, seq_length],
+        dtype=tf.int32,
+        name='segment_ids_ph'
+    ),
+    'truths': tf.placeholder(
+        shape=[None, seq_length],
+        dtype=tf.float32,
+        name='truths_ph'
+    )
   })

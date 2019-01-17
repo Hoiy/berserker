@@ -17,7 +17,7 @@ berserker.tokenize('姑姑想過過過兒過過的生活。') # ... (By defaul u
 ## Training
 Berserker is fine-tuned over TPU with [pretrained Chinese BERT model](https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip). It is connected with a single dense layer which is applied to all tokens to produce a sequence of [0, 1] output.
 
-## Result
+## Benchmark
 A quick test shows that Berserker achieved F1 measure of 0.965 on the [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) PKU [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip). This is trained by using the full training data and trained for 5000 steps with batch size 64.
 
 ```
