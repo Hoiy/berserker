@@ -16,7 +16,7 @@ def maybe_download_unzip(url, dst_path, verbose=False, force=False):
             print('Directory %s already exists, skipping download...'%dir)
         return
     if verbose:
-        print('Downloading %s...'%url)
+        print('Downloading %s to %s ...'%(url, dir))
 
     r = requests.get(url, stream=True)
     total_size_mb = math.ceil(int(r.headers.get('content-length', 0)) / 1024 / 1024);
@@ -27,5 +27,5 @@ def maybe_download_unzip(url, dst_path, verbose=False, force=False):
         f.write(chunk)
     ZipFile(f).extractall(dst_path)
     if verbose:
-        print('Done downloading %s...'%url)
+        print('Done downloading %s to %s ...'%(url, dir))
     return
