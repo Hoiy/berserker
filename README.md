@@ -1,16 +1,16 @@
 # Berserker
-Berserker (BERt chineSE toKenizER) is a Chinese tokenizer built on top of Google's [BERT](https://github.com/google-research/bert) model.
+Berserker (BERt chineSE tRained toKenizER) is a Chinese tokenizer built on top of Google's [BERT](https://github.com/google-research/bert) model.
 
 ## Installation
 ```python
-pip install berserker
+pip install basaka
 ```
 
 ## Usage
 ```python
 import berserker
 
-berserker.load_model() # Only needed to be called once
+berserker.load_model() # An one-off installation
 berserker.tokenize('姑姑想過過過兒過過的生活。') # ['姑姑', '想', '過', '過', '過兒', '過過', '的', '生活', '。']
 ```
 
