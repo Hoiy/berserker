@@ -1,5 +1,5 @@
 # Berserker
-Berserker (BERt chineSE tRained toKenizER) is a Chinese tokenizer built on top of Google's [BERT](https://github.com/google-research/bert) model.
+Berserker (BERt chineSE woRd toKenizER) is a Chinese tokenizer built on top of Google's [BERT](https://github.com/google-research/bert) model.
 
 ## Installation
 ```python

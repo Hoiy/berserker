@@ -29,3 +29,18 @@ def maybe_download_unzip(url, dst_path, verbose=False, force=False):
     if verbose:
         print('Done downloading %s to %s ...'%(url, dir))
     return
+
+
+def maybe_git_clone(url, dst_path):
+    repo_name = os.path.splitext(ntpath.basename(url))[0]
+    dir = os.path.join(dst_path, repo_name)
+    if os.path.exists(dir):
+        print('Directory %s already exists, skipping git clone...'%dir)
+        return
+
+    tf.logging.info('Cloning %s...'%url)
+    subprocess.call(['git', 'clone',
+        url,
+        os.path.join(dst_path, repo_name)
+    ])
+    return

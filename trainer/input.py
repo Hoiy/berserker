@@ -1,5 +1,5 @@
 import tensorflow as tf
-from transform import feature_spec, preprocess, text_to_bert_inputs
+from berserker.transform import feature_spec
 
 def _deserialize(serialized, name_to_features):
   """Decodes a record to a TensorFlow example."""
@@ -54,47 +54,14 @@ def serving_input_fn_builder(seq_length, batch_size):
     return serving_input_receiver_fn
 
 
-# TODO: padding insteads of drop_remainder
-def predict_input_fn_builder(bert_inputs, seq_length, tokenizer, drop_remainder=False):
-  all_input_ids = []
-  all_input_mask = []
-  all_segment_ids = []
-  all_truths = []
-
-  for input_ids, input_mask, segment_ids, truths in bert_inputs:
-      all_input_ids.append(input_ids)
-      all_input_mask.append(input_mask)
-      all_segment_ids.append(segment_ids)
-      all_truths.append(truths)
-
-  num_examples = len(bert_inputs)
-
+def predict_input_fn_builder(bert_inputs, max_seq_length, drop_remainder):
   def input_fn(params):
-      d = tf.data.Dataset.from_tensor_slices({
-          "input_ids":
-              tf.constant(
-                  all_input_ids, shape=[num_examples, seq_length],
-                  dtype=tf.int32),
-          "input_mask":
-              tf.constant(
-                  all_input_mask,
-                  shape=[num_examples, seq_length],
-                  dtype=tf.int32),
-          "segment_ids":
-              tf.constant(
-                  all_segment_ids,
-                  shape=[num_examples, seq_length],
-                  dtype=tf.int32),
-          "truths":
-              tf.constant(
-                  all_truths,
-                  shape=[num_examples, seq_length],
-                  dtype=tf.float32),
-      })
+      d = tf.data.Dataset.from_tensor_slices(bert_inputs)
       d = d.batch(batch_size=params['batch_size'], drop_remainder=drop_remainder)
       return d
 
   return input_fn
+
 
 def serving_input_fn_builder(seq_length):
    return tf.estimator.export.build_raw_serving_input_receiver_fn({

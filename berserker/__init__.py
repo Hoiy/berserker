@@ -1,13 +1,12 @@
-from .utils import maybe_download_unzip
-from .tokenization import FullTokenizer
+from berserker.utils import maybe_download_unzip
 from pathlib import Path
-from .transform import text_to_bert_inputs, preprocess, postprocess
+# from berserker.transform import text_to_bert_inputs, preprocess, postprocess
 import tensorflow as tf
 import numpy as np
 
 
-_assets_path = Path(__file__).parent / 'assets'
-_models_path = Path(__file__).parent / 'models'
+ASSETS_PATH = str(Path(__file__).parent / 'assets')
+_models_path = str(Path(__file__).parent / 'models')
 
 
 MAX_SEQ_LENGTH = 512
@@ -25,10 +24,7 @@ def load_model(model_name=None, verbose=True, force_download=False):
 
 def tokenize(text):
     load_model()
-    tokenizer = FullTokenizer(
-        vocab_file=_assets_path / 'vocab.txt',
-        do_lower_case=False
-    )
+    tokenizer = create_tokenizer()
 
     bert_inputs_lens = []
     bert_inputs = []

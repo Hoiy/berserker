@@ -1,4 +1,5 @@
-import modeling, optimization
+from trainer.ext import modeling
+from trainer.ext import optimization
 import tensorflow as tf
 
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
