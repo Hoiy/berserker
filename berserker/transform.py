@@ -210,7 +210,7 @@ def _pad_bert_inputs(tokens_a, tokens_a_truth, max_seq_length):
         "truths": truths
     }
 
-def batch_preprocess(texts, max_seq_length):
+def batch_preprocess(texts, max_seq_length, batch_size):
     fields = ["input_ids", "input_mask", "segment_ids", "truths"]
     bert_inputs = {f: [] for f in fields}
     mappings = []
@@ -221,6 +221,11 @@ def batch_preprocess(texts, max_seq_length):
             bert_inputs[f] += bert_input[f]
         mappings.append(mapping)
         sizes.append(size)
+
+    # pad to batch_size
+    while len(bert_inputs["input_ids"]) % batch_size != 0:
+        for f in fields:
+            bert_inputs[f].append([0] * max_seq_length)
     return bert_inputs, mappings, sizes
 
 
@@ -265,24 +270,19 @@ def preprocess(text, max_seq_length, truths=None):
 
 
 def batch_postprocessing(texts, mappings, sizes, bert_inputs, bert_outputs, max_seq_length, threshold=0.5):
-    fields = ["input_ids", "input_mask", "segment_ids", "truths"]
+    assert len(bert_inputs["input_ids"]) == len(bert_outputs), (len(bert_inputs["input_ids"]), len(bert_outputs))
     results = []
     i = 0
     for text, mapping, size in zip(texts, mappings, sizes):
-        bi = []
-        for j in range(size):
-            bi.append({
-                f: bert_inputs[f][i+j] for f in fields
-            })
+        bi = [{k: bert_inputs[k][i+j] for k in bert_inputs.keys()} for j in range(size)]
         bo = bert_outputs[i:i+size]
-        print(bo)
         results.append(postprocess(text, mapping, bi, bo, threshold))
         i += size
     return results
 
 
 def postprocess(text, mapping, bert_inputs, bert_outputs, threshold=0.5):
-    assert len(bert_inputs) == len(bert_outputs)
+    assert len(bert_inputs) == len(bert_outputs), (len(bert_inputs), len(bert_outputs))
     bert_preds = []
     for bert_input, bert_output in zip(bert_inputs, bert_outputs):
         bert_token, bert_pred = _unpad_bert_outputs(bert_input, bert_output)

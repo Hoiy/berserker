@@ -121,11 +121,12 @@ def main(_):
     if FLAGS.do_predict:
         import pandas as pd
         import numpy as np
-        texts = pd.read_csv(FLAGS.predict_file, header=None, sep='^')[0][:10]
+        texts = pd.read_csv(FLAGS.predict_file, header=None, sep='^')[0]
 
         bert_inputs, mappings, sizes = batch_preprocess(
             texts,
-            FLAGS.max_seq_length
+            FLAGS.max_seq_length,
+            FLAGS.batch_size
         )
 
         # berserker = tf.contrib.predictor.from_saved_model(
@@ -158,7 +159,7 @@ def main(_):
             assert len(results) == len(texts)
             with open('%.1f_'%threshold + FLAGS.predict_output, 'w') as f:
                 for result in results:
-                    print(result, file=f)
+                    print('  '.join(result), file=f)
 
 
 if __name__ == "__main__":
