@@ -18,25 +18,26 @@ berserker.tokenize('姑姑想過過過兒過過的生活。') # ['姑姑', '想'
 Berserker is fine-tuned over TPU with [pretrained Chinese BERT model](https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip). It is connected with a single dense layer which is applied to all tokens to produce a sequence of [0, 1] output.
 
 ## Benchmark
-A quick test shows that Berserker achieved F1 measure of 0.965 on the [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) PKU [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip). This is trained by using the full training data and trained for 5000 steps with batch size 64.
+A quick test shows that Berserker achieved state-of-the-art F1 measure on the [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip). 
 
-```
-=== SUMMARY:
-=== TOTAL INSERTIONS:	727
-=== TOTAL DELETIONS:	1800
-=== TOTAL SUBSTITUTIONS:	2413
-=== TOTAL NCHANGE:	4940
-=== TOTAL TRUE WORD COUNT:	104372
-=== TOTAL TEST WORD COUNT:	103299
-=== TOTAL TRUE WORDS RECALL:	0.960
-=== TOTAL TEST WORDS PRECISION:	0.970
-=== F MEASURE:	0.965
-=== OOV Rate:	0.058
-=== OOV Recall Rate:	0.851
-=== IV Recall Rate:	0.966
-```
+The result below is trained with 15 epoches on each dataset with a batch size of 64 and a cutoff threshold 0.1.
 
-more to come...
+|                    | PKU      | CITYU    | MSR      |
+|--------------------|----------|----------|----------|
+| Liu et al. (2016)  | **96.8** | --       | 97.3     |
+| Yang et al. (2017) | 96.3     | 96.9     | 97.5     |
+| Zhou et al. (2017) | 96.0     | --       | 97.8     |
+| Cai et al. (2017)  | 95.8     | 95.6     | 97.1     |
+| Chen et al. (2017) | 94.3     | 95.6     | 96.0     |
+| Wang and Xu (2017) | 96.5     | --       | 98.0     |
+| Ma et al. (2018)   | 96.1     | **97.2** | 98.1     |
+|--------------------|----------|----------|----------|
+| Berserker          | 96.6     | 97.1     | **98.4** |
+
+Reference: [Ji Ma, Kuzman Ganchev, David Weiss - State-of-the-art Chinese Word Segmentation with Bi-LSTMs](https://arxiv.org/pdf/1808.06511.pdf)
+
+More to come...
+
 
 ## Bonus Video
 [<img src="https://img.youtube.com/vi/H_xmyvABZnE/maxres1.jpg" alt="Yachae!! BERSERKER!!"/>](https://www.youtube.com/watch?v=H_xmyvABZnE)
