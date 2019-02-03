@@ -26,6 +26,14 @@ python run.py \
   --do_train=true
 ```
 
+## Training (in Local)
+```sh
+python -m trainer.task \
+  --use_tpu=false \
+  --do_train=true
+```
+
+
 ## Prediction (over CPU)
 ```sh
 python -m trainer.task \
