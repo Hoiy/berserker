@@ -38,9 +38,14 @@ def main(_):
             tf.logging.info('Writing to %s...'%outfile)
             for text in tqdm(ser):
                 text, truths = parse_truths(text)
-                bert_inputs = preprocess(text, FLAGS.max_seq_length, truths)
-                for bert_input in bert_inputs:
-                    writer.write(bert_input_to_tfexample(*bert_input).SerializeToString())
+                bert_inputs, _, _ = preprocess(text, FLAGS.max_seq_length, truths)
+                for i in range(len(bert_inputs['input_ids'])):
+                    writer.write(bert_input_to_tfexample(
+                        input_ids = bert_inputs['input_ids'][i],
+                        input_mask = bert_inputs['input_mask'][i],
+                        segment_ids = bert_inputs['segment_ids'][i],
+                        truths = bert_inputs['truths'][i]
+                    ).SerializeToString())
 
 
 if __name__ == "__main__":

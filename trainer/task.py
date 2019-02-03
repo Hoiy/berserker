@@ -22,7 +22,6 @@ flags.DEFINE_bool("do_train", False, "Train the model.")
 flags.DEFINE_float("learning_rate", 2e-5, "The learning rate.")
 flags.DEFINE_integer("train_steps", 100, "Number of training steps.")
 flags.DEFINE_float("warmup_proportion", 0.1, "")
-# flags.DEFINE_integer("save_checkpoints_steps", 3000, "Number of steps to save a checkpoint.")
 
 
 flags.DEFINE_bool("do_eval", False, "Evaluate the model.")
@@ -129,13 +128,6 @@ def main(_):
             FLAGS.batch_size
         )
 
-        # berserker = tf.contrib.predictor.from_saved_model(
-        #     FLAGS.predict_model
-        # )
-        # bert_outputs = berserker(bert_inputs)
-
-        # bert_inputs = {"input_ids": ..., "input_mask": ..., "segment_ids": ..., "truths": ...}
-
         bert_outputs = estimator.predict(
             input_fn=predict_input_fn_builder(
                 bert_inputs=bert_inputs,
@@ -144,7 +136,6 @@ def main(_):
             )
         )
         bert_outputs = [bert_output for bert_output in bert_outputs]
-        # bert_outputs = [{"predictions": ...}, {"predictions": ...}, ...]
 
         for threshold in np.linspace(0.1, 0.9, 9):
             results = batch_postprocessing(

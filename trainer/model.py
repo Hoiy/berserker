@@ -110,7 +110,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddin
       def metric_fn(truths, predictions, masks):
         threshold = 0.5
         pred_int = tf.cast(predictions >= threshold, tf.int32)
-        # acc = tf.metrics.accuracy(labels=truths, predictions=predictions, weights=masks)
         return {
             "auc": tf.metrics.auc(
                 labels=truths,
@@ -132,7 +131,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddin
                 predictions=pred_int,
                 weights=masks
             ),
-            # "binary_crossentropy": total_loss
         }
 
       eval_metrics = (metric_fn, [truths, predictions, input_mask])
