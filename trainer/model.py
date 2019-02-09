@@ -1,4 +1,5 @@
-import modeling, optimization
+from trainer.ext import modeling
+from trainer.ext import optimization
 import tensorflow as tf
 
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
@@ -12,26 +13,11 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
       use_one_hot_embeddings=use_one_hot_embeddings)
 
   final_hidden = model.get_sequence_output()
-
   final_hidden_shape = modeling.get_shape_list(final_hidden, expected_rank=3)
   batch_size = final_hidden_shape[0]
   seq_length = final_hidden_shape[1]
-  hidden_size = final_hidden_shape[2]
 
-  output_weights = tf.get_variable(
-      "berserker/output_weights", [1, hidden_size],
-      initializer=tf.truncated_normal_initializer(stddev=0.02))
-
-  output_bias = tf.get_variable(
-      "berserker/output_bias", [1], initializer=tf.zeros_initializer())
-
-  final_hidden_matrix = tf.reshape(final_hidden,
-                                   [batch_size * seq_length, hidden_size])
-
-  logits = tf.matmul(final_hidden_matrix, output_weights, transpose_b=True)
-  logits = tf.nn.bias_add(logits, output_bias)
-
-  logits = tf.reshape(logits, [batch_size, seq_length])
+  logits = tf.reshape(tf.keras.layers.Dense(1)(final_hidden), (batch_size, seq_length))
   predictions = tf.nn.sigmoid(logits)
 
   return predictions
@@ -124,7 +110,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddin
       def metric_fn(truths, predictions, masks):
         threshold = 0.5
         pred_int = tf.cast(predictions >= threshold, tf.int32)
-        # acc = tf.metrics.accuracy(labels=truths, predictions=predictions, weights=masks)
         return {
             "auc": tf.metrics.auc(
                 labels=truths,
@@ -146,7 +131,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_tpu, use_one_hot_embeddin
                 predictions=pred_int,
                 weights=masks
             ),
-            # "binary_crossentropy": total_loss
         }
 
       eval_metrics = (metric_fn, [truths, predictions, input_mask])
