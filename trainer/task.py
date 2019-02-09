@@ -3,7 +3,7 @@ import tensorflow as tf
 from trainer.input import input_fn_builder, serving_input_fn_builder, predict_input_fn_builder
 from trainer.model import model_fn_builder
 from trainer.ext import modeling
-from berserker.transform import batch_preprocess, batch_postprocessing
+from berserker.transform import batch_preprocess, batch_postprocess
 from tqdm import tqdm
 import sys
 
@@ -137,7 +137,7 @@ def main(_):
         bert_outputs = [bert_output for bert_output in bert_outputs]
 
         for threshold in np.linspace(0.1, 0.9, 9):
-            results = batch_postprocessing(
+            results = batch_postprocess(
                 texts,
                 mappings,
                 sizes,

@@ -247,7 +247,7 @@ def preprocess(text, max_seq_length, truths=None):
     }, mapping, len(bert_inputs)
 
 
-def batch_postprocessing(texts, mappings, sizes, bert_inputs, bert_outputs, max_seq_length, threshold=0.5):
+def batch_postprocess(texts, mappings, sizes, bert_inputs, bert_outputs, max_seq_length, threshold=0.5):
     assert len(bert_inputs["input_ids"]) == len(bert_outputs), (len(bert_inputs["input_ids"]), len(bert_outputs))
     results = []
     i = 0
@@ -268,10 +268,10 @@ def postprocess(text, mapping, bert_inputs, bert_outputs, threshold=0.5):
 
     assert len(bert_preds) == len(set(mapping.values())), (len(bert_preds), len(set(mapping.values())))
     preds = _backward_map(mapping, bert_preds)
-    assert len(text) == len(preds)
+    assert len(text) == len(preds), (text, preds)
     result = ""
     for ch, pred in zip(text, preds):
         result += ch
         if pred >= threshold:
             result += " "
-    return result.split(" ")
+    return list(filter(None, result.split(" ")))

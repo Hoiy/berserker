@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name = 'basaka',
-    version = '0.0.1',
+    version = '0.2.1',
     author = 'Hoi',
     author_email = 'hoiy927@gmail.com',
     description='Berserker - BERt chineSE woRd toKenizER',
