@@ -116,11 +116,10 @@ def main(_):
             strip_default_attrs=True
         )
 
-
     if FLAGS.do_predict:
         import pandas as pd
         import numpy as np
-        texts = pd.read_csv(FLAGS.predict_file, header=None, sep='^')[0]
+        texts = pd.read_csv(FLAGS.predict_file, header=None, sep='^', skip_blank_lines=False)[0].fillna('')
 
         bert_inputs, mappings, sizes = batch_preprocess(
             texts,

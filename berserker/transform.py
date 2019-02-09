@@ -251,7 +251,7 @@ def preprocess(text, max_seq_length, truths=None):
     SEQ_LENGTH = max_seq_length - 2
 
     bert_inputs = []
-    while len(bert_tokens) > 0:
+    while len(bert_tokens) > 0 or len(bert_inputs) == 0:
         bert_inputs.append(_pad_bert_inputs(
             bert_tokens[:SEQ_LENGTH],
             bert_truths[:SEQ_LENGTH],
