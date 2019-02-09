@@ -1,5 +1,14 @@
 import tensorflow as tf
-from berserker.transform import feature_spec
+
+
+def feature_spec(seq_length):
+    return {
+        "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
+        "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
+        "truths": tf.FixedLenFeature([seq_length], tf.float32),
+    }
+
 
 def _deserialize(serialized, name_to_features):
   """Decodes a record to a TensorFlow example."""
