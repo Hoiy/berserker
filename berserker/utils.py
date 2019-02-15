@@ -7,6 +7,7 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 import math
+import subprocess
 
 
 def maybe_download_unzip(url, dst_path, verbose=False, force=False):
@@ -22,7 +23,7 @@ def maybe_download_unzip(url, dst_path, verbose=False, force=False):
     total_size_mb = math.ceil(int(r.headers.get('content-length', 0)) / 1024 / 1024);
 
     f = BytesIO()
-    func = lambda x: tqdm(x, total=total_size_mb, unit='MB', unit_scale=True) if verbose else lambda x:x
+    func = (lambda x: tqdm(x, total=total_size_mb, unit='MB', unit_scale=True)) if verbose else (lambda x: x)
     for chunk in func(r.iter_content(1024 * 1024)):
         f.write(chunk)
     ZipFile(f).extractall(dst_path)
@@ -38,7 +39,7 @@ def maybe_git_clone(url, dst_path):
         print('Directory %s already exists, skipping git clone...'%dir)
         return
 
-    tf.logging.info('Cloning %s...'%url)
+    print('Cloning %s...'%url)
     subprocess.call(['git', 'clone',
         url,
         os.path.join(dst_path, repo_name)
