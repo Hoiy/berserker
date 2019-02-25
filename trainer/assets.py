@@ -24,11 +24,6 @@ def main(_):
         verbose=True
     )
 
-    maybe_git_clone(
-        'https://github.com/google-research/bert',
-        FLAGS.output_dir
-    )
-
 
 if __name__ == "__main__":
     tf.app.run()

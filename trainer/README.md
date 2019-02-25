@@ -5,7 +5,10 @@ First, clone the Berserker repository.
 All the command below should be run within `berserker` directory and **not** the `trainer` subdirectory.
 
 ## Download assets
-The command below download [SIGHAN 2005](http://sighan.cs.uchicago.edu/bakeoff2005/) [dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip) to the `./assets` subdirectory.
+The command below download to the `assets` subdirectory
+
+1. [SIGHAN 2005 dataset](http://sighan.cs.uchicago.edu/bakeoff2005/data/icwb2-data.zip).
+2. [Google BERT pretrained Chinese model](https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip).
 
 ```sh
 python -m trainer.assets
